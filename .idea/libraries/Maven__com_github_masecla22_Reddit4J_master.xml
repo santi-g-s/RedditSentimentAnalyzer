@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.github.masecla22:Reddit4J:master">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/masecla22/Reddit4J/master/Reddit4J-master.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/masecla22/Reddit4J/master/Reddit4J-master-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/masecla22/Reddit4J/master/Reddit4J-master-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
