@@ -11,6 +11,7 @@ import net.dean.jraw.pagination.DefaultPaginator;
 import net.dean.jraw.pagination.SearchPaginator;
 
 import java.lang.reflect.Array;
+import java.sql.Time;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,24 +105,27 @@ public class RedditPostParser {
                 .query("NFLX")
                 .syntax(SearchPaginator.QuerySyntax.PLAIN)
                 .sorting(SearchSort.TOP)
+                .timePeriod(TimePeriod.YEAR)
                 .limit(100)
                 .build();
 
-        Listing<Submission> submissions = paginator.next();
-        for (Submission s : submissions) {
 
-            //Checks if ticker is in body of post
-            List<String> tick = checkStringContainsTickers(s.getTitle() + s.getSelfText());
-            RedditPost post = new RedditPost(s.getTitle(), s.getSelfText(),s.getCreated(), tick);
-            Boolean postInTimeFrame = (post.createdDate.compareTo(startDate) >= 0 &&
-                    post.createdDate.compareTo(endDate) <= 0);
+        for (Listing<Submission> nextPage : paginator) {
+            for (Submission s : nextPage) {
+                //Checks if ticker is in body of post
+                List<String> tick = checkStringContainsTickers(s.getTitle() + s.getSelfText());
+                RedditPost post = new RedditPost(s.getTitle(), s.getSelfText(), s.getCreated(), tick);
+                Boolean postInTimeFrame = (post.createdDate.compareTo(startDate) >= 0 &&
+                        post.createdDate.compareTo(endDate) <= 0);
 
-            if (post.tickers.contains(ticker) && postInTimeFrame) {
-                posts.add(post);
+                if (post.tickers.contains(ticker) && postInTimeFrame) {
+                    posts.add(post);
+                }
             }
         }
 
-        System.out.println("Found " + posts.size() + " posts mentioning tickers from " + startDate + " to " + endDate);
+        System.out.println("Found " + posts.size() + " posts mentioning $" + ticker +
+                " between " + startDate + " and " + endDate);
         return posts;
     }
 
@@ -140,31 +144,34 @@ public class RedditPostParser {
         DefaultPaginator<Submission> paginator = reddit.subreddit(subredditName)
                 .posts()
                 .sorting(SubredditSort.TOP)
-                .timePeriod(TimePeriod.MONTH)
+                .timePeriod(TimePeriod.YEAR)
                 .limit(100)
                 .build();
 
-        Listing<Submission> submissions = paginator.next();
-        for (Submission s : submissions) {
+        for (Listing<Submission> nextPage : paginator) {
+            for (Submission s : nextPage) {
+                //Checks if ticker is in body of post
+                List<String> tick = checkStringContainsTickers(s.getTitle() + s.getSelfText());
+                RedditPost post = new RedditPost(s.getTitle(), s.getSelfText(),s.getCreated(), tick);
+                Boolean postInTimeFrame = (post.createdDate.compareTo(startDate) >= 0 &&
+                        post.createdDate.compareTo(endDate) <= 0);
 
-            //Checks if ticker is in body of post
-            List<String> tick = checkStringContainsTickers(s.getTitle() + s.getSelfText());
-            RedditPost post = new RedditPost(s.getTitle(), s.getSelfText(),s.getCreated(), tick);
-            Boolean postInTimeFrame = (post.createdDate.compareTo(startDate) >= 0 &&
-                    post.createdDate.compareTo(endDate) <= 0);
+                //Find intersection of tickers
+                Set<String> intersectingTickers = post.tickers.stream()
+                        .distinct()
+                        .filter(tickers::contains)
+                        .collect(Collectors.toSet());
 
-            //Find intersection of tickers
-            Set<String> intersectingTickers = post.tickers.stream()
-                    .distinct()
-                    .filter(tickers::contains)
-                    .collect(Collectors.toSet());
+                System.out.println(intersectingTickers);
 
-            if (!intersectingTickers.isEmpty() && postInTimeFrame) {
-                posts.add(post);
+                if (!intersectingTickers.isEmpty() && postInTimeFrame) {
+                    posts.add(post);
+                }
             }
         }
 
-        System.out.println("Found " + posts.size() + " posts mentioning tickers from " + startDate + " to " + endDate);
+        System.out.println("Found " + posts.size() + " redditposts mentioning tickers from " +
+                startDate + " to " + endDate);
         return posts;
     }
 
