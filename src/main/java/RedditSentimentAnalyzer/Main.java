@@ -1,10 +1,16 @@
 package RedditSentimentAnalyzer;
 
+import org.apache.log4j.BasicConfigurator;
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
+import yahoofinance.histquotes.HistoricalQuote;
+import yahoofinance.histquotes.Interval;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static RedditSentimentAnalyzer.SentimentAnalyzer.*;
 
@@ -44,6 +50,15 @@ public class Main {
 
             System.out.println("\n" + "Between " + sdformat.format(d1) + " and " + sdformat.format(d2) +
                     ": The average sentiment of " + ticker +  " was '" + sentimentStr + "'.");
+
+            List<HistoricalQuote> appleHistQuotes = StockHistoryAnalyzer.getHist(ticker, d2);
+            BigDecimal reddit = appleHistQuotes.get(0).getClose();
+            BigDecimal current = appleHistQuotes.get(appleHistQuotes.size() - 1).getClose();
+            BigDecimal difference = current.subtract(reddit);
+
+            System.out.println("\nThe difference between the current price and the price at the" +
+                    "time of the last reddit post is " + difference.toPlainString());
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
