@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="RedditAPI" target="1.8.0_322" />
+      <module name="RedditAPI" target="11.0.12" />
     </bytecodeTargetLevel>
   </component>
 </project>
