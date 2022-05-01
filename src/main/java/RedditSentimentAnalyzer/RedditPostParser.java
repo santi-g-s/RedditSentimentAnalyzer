@@ -8,12 +8,11 @@ import net.dean.jraw.models.*;
 import net.dean.jraw.oauth.Credentials;
 import net.dean.jraw.oauth.OAuthHelper;
 import net.dean.jraw.pagination.DefaultPaginator;
+import net.dean.jraw.pagination.SearchPaginator;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RedditPostParser {
 
@@ -70,7 +69,7 @@ public class RedditPostParser {
             }
         }
         //System.out.println(output);
-        return output;
+        return output.stream().distinct().collect(Collectors.toList());
     }
 
     /**
@@ -91,6 +90,42 @@ public class RedditPostParser {
     }
 
     /**
+     * Given a ticker, searches reddit for relevant posts
+     * @param ticker specified ticker
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public List<RedditPost> getPostsForTicker(String ticker, Date startDate, Date endDate){
+
+        List<RedditPost> posts = new LinkedList<>();
+
+        SearchPaginator paginator = reddit.search()
+                .query("NFLX")
+                .syntax(SearchPaginator.QuerySyntax.PLAIN)
+                .sorting(SearchSort.TOP)
+                .limit(100)
+                .build();
+
+        Listing<Submission> submissions = paginator.next();
+        for (Submission s : submissions) {
+
+            //Checks if ticker is in body of post
+            List<String> tick = checkStringContainsTickers(s.getTitle() + s.getSelfText());
+            RedditPost post = new RedditPost(s.getTitle(), s.getSelfText(),s.getCreated(), tick);
+            Boolean postInTimeFrame = (post.createdDate.compareTo(startDate) >= 0 &&
+                    post.createdDate.compareTo(endDate) <= 0);
+
+            if (post.tickers.contains(ticker) && postInTimeFrame) {
+                posts.add(post);
+            }
+        }
+
+        System.out.println("Found " + posts.size() + " posts mentioning tickers from " + startDate + " to " + endDate);
+        return posts;
+    }
+
+    /**
      * Given a subreddit, gets all posts mentioning the specified tickers
      * @param subredditName the name of the subreddit to check for
      * @param tickers the tickers to crosscheck for
@@ -105,24 +140,31 @@ public class RedditPostParser {
         DefaultPaginator<Submission> paginator = reddit.subreddit(subredditName)
                 .posts()
                 .sorting(SubredditSort.TOP)
-                .timePeriod(TimePeriod.YEAR)
-                .limit(50)
+                .timePeriod(TimePeriod.MONTH)
+                .limit(100)
                 .build();
 
         Listing<Submission> submissions = paginator.next();
         for (Submission s : submissions) {
 
             //Checks if ticker is in body of post
-            List<String> tick = checkStringContainsTickers(s.getSelfText());
+            List<String> tick = checkStringContainsTickers(s.getTitle() + s.getSelfText());
             RedditPost post = new RedditPost(s.getTitle(), s.getSelfText(),s.getCreated(), tick);
             Boolean postInTimeFrame = (post.createdDate.compareTo(startDate) >= 0 &&
                     post.createdDate.compareTo(endDate) <= 0);
-            if (!post.tickers.isEmpty() && postInTimeFrame) {
+
+            //Find intersection of tickers
+            Set<String> intersectingTickers = post.tickers.stream()
+                    .distinct()
+                    .filter(tickers::contains)
+                    .collect(Collectors.toSet());
+
+            if (!intersectingTickers.isEmpty() && postInTimeFrame) {
                 posts.add(post);
             }
-
         }
-        //System.out.println(posts);
+
+        System.out.println("Found " + posts.size() + " posts mentioning tickers from " + startDate + " to " + endDate);
         return posts;
     }
 
