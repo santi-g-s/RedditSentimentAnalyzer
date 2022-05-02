@@ -27,7 +27,7 @@ public class TickerAnalysis {
         System.out.print("Analyzing");
 
         //For testing purposes, un-comment this
-        //posts = posts.subList(0,5);
+        //posts = posts.subList(0,10);
 
         List<Integer> sentiments = new LinkedList<>();
 

@@ -49,6 +49,9 @@ public class Main {
 
     public static void main(String[] args) {
 
+        //Initialize log4j system
+        BasicConfigurator.configure();
+
         SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd");
         TickerAnalysis analysis = new TickerAnalysis();
 
@@ -85,6 +88,7 @@ public class Main {
                     ": \n The mean sentiment of " + ticker +  " was " + meanSentiment + ": '" + meanSentimentStr + "'."
                     +  "\n The median sentiment of " + ticker + " was " + medianOf(sentiments) + " '"
                     + medianSentimentStr + "'.");
+            System.out.println(sentiments);
 
             List<HistoricalQuote> appleHistQuotes = StockHistoryAnalyzer.getHist(ticker, d2);
             BigDecimal reddit = appleHistQuotes.get(0).getClose();
