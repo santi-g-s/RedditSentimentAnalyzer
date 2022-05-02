@@ -39,7 +39,7 @@ public class SentimentAnalyzer {
      * @param post The multi-sentence post with which you want to process
      * @param weight A real number in [0,1]
      */
-    public static int getPostSentiment(String post, float weight)
+    public static int getWeightedAveragePostSentiment(String post, float weight)
     {
         int sentenceSentiment;
         int reviewSentimentAverageSum = 0;
@@ -75,6 +75,37 @@ public class SentimentAnalyzer {
 //        System.out.println("Linear average sentiment:\t" + Math.round((float) reviewSentimentAverageSum/divisorLinear));
 
         return Math.round((float) reviewSentimentWeightedSum/divisorWeighted);
+    }
+
+    /**
+     * Calculates the sentiment value of a reddit post.
+     *
+     * Ignores all sentences in the post with a "Neutral" sentiment to gather
+     * a more real-world reflective value.
+     * @param post The reddit post to analyse
+     * @return A value for sentiment in the integer range [0..4]
+     */
+    public static int getExtremePostSentiment(String post) {
+        int sentenceSentiment;
+        int totalSentimentSum = 0;
+        Annotation annotation = pipeline.process(post);
+        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        int numOfSentences = 0;
+
+        for (int i = 0; i < sentences.size(); i++) {
+            Tree tree = sentences.get(i).get(SentimentAnnotatedTree.class);
+            sentenceSentiment = RNNCoreAnnotations.getPredictedClass(tree);
+            //System.out.println(sentences.get(i) + " | Sentiment: " + sentenceSentiment);
+
+            //ignore sentiment of 2
+            if (sentenceSentiment != 2) {
+                totalSentimentSum = totalSentimentSum + sentenceSentiment;
+                numOfSentences += 1;
+            }
+        }
+
+        int average = Math.round((float) totalSentimentSum / numOfSentences);
+        return average;
     }
 
 }
