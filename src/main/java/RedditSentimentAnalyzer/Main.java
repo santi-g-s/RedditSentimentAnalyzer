@@ -24,8 +24,8 @@ public class Main {
 
         try {
             //EDIT DATE INFO HERE
-            Date d1 = sdformat.parse("2022-01-01");
-            Date d2 = sdformat.parse("2022-03-31");
+            Date d1 = sdformat.parse("2021-10-01");
+            Date d2 = sdformat.parse("2021-12-31");
 
             int sentiment = analysis.getAverageSentimentOfTicker(ticker, d1, d2);
             String sentimentStr = "NULL";
@@ -43,7 +43,7 @@ public class Main {
             }
 
             System.out.println("\n" + "Between " + sdformat.format(d1) + " and " + sdformat.format(d2) +
-                    ": The average sentiment of " + ticker +  " was '" + sentimentStr + "'.");
+                    ": The mean sentiment of " + ticker +  " was " + sentiment + ": '" + sentimentStr + "'.");
         } catch (ParseException e) {
             e.printStackTrace();
         }

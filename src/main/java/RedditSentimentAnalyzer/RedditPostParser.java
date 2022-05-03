@@ -102,7 +102,7 @@ public class RedditPostParser {
         List<RedditPost> posts = new LinkedList<>();
 
         SearchPaginator paginator = reddit.search()
-                .query("NFLX")
+                .query(ticker)
                 .syntax(SearchPaginator.QuerySyntax.PLAIN)
                 .sorting(SearchSort.TOP)
                 .timePeriod(TimePeriod.YEAR)

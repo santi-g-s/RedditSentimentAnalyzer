@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import static RedditSentimentAnalyzer.SentimentAnalyzer.getExtremePostSentiment;
 import static RedditSentimentAnalyzer.SentimentAnalyzer.getPostSentiment;
 
 public class TickerAnalysis {
@@ -26,14 +27,14 @@ public class TickerAnalysis {
         System.out.print("Analyzing");
 
         //For testing purposes, un-comment this
-        posts = posts.subList(0,5);
+        //posts = posts.subList(0,10);
 
         for (RedditPost post : posts) {
             if (!post.body.isEmpty()) {
 
                 System.out.print(".");
-                int sentiment = getPostSentiment(post.body, 0.4f);
-
+                //int sentiment = getPostSentiment(post.body, 0.4f);
+                int sentiment = getExtremePostSentiment(post.body);
                 totalSentimentScore += sentiment;
 
             }
