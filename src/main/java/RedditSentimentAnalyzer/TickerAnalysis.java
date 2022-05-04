@@ -24,23 +24,29 @@ public class TickerAnalysis {
 
         System.out.println("Calculating sentiment | This may take a while");
 
-        System.out.print("Analyzing");
+        System.out.println("Analyzing...");
 
         //For testing purposes, un-comment this
         //posts = posts.subList(0,10);
 
+        int numberOfPosts = 0;
+
         for (RedditPost post : posts) {
             if (!post.body.isEmpty()) {
 
-                System.out.print(".");
+                //System.out.print(".");
                 //int sentiment = getPostSentiment(post.body, 0.4f);
                 int sentiment = getExtremePostSentiment(post.body);
+                System.out.print(sentiment);
+
+                numberOfPosts += 1;
+
                 totalSentimentScore += sentiment;
 
             }
         }
 
-        int avrgSentiment = Math.round((float) totalSentimentScore/posts.size());
+        int avrgSentiment = Math.round((float) totalSentimentScore/numberOfPosts);
 
         return avrgSentiment;
     }
